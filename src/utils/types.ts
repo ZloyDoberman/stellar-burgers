@@ -44,4 +44,9 @@ export const enum RequestStatus {
   Failed = 'Failed'
 }
 
+export type ApiError = {
+  message: string;
+  success?: boolean;
+};
+
 export type TTabMode = 'bun' | 'sauce' | 'main';

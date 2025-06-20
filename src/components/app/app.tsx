@@ -14,124 +14,134 @@ import styles from './app.module.css';
 import {
   Routes,
   Route,
-  createRoutesFromElements,
-  createBrowserRouter,
-  Outlet,
-  RouterProvider
+  useLocation,
+  useNavigate,
+  Outlet
 } from 'react-router-dom';
 
 import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
 import { ProtectedRoute } from '../protected-route/protectedRoute';
 import { useEffect } from 'react';
 import { fetchIngredients } from '../../services/thunk/ingredients';
-import { AsyncThunkAction } from '@reduxjs/toolkit';
-import { TIngredient } from '@utils-types';
-import { UnknownAction } from 'redux';
-import { ThunkDispatch } from 'redux-thunk';
-import { useDispatch } from '../../services/store';
+import { useDispatch, useSelector } from '../../services/store';
+import { fetchUser } from '../../services/thunk/user';
+import userSlice from '../../services/slices/user';
+import { fetchFeed, userOrderHistoryApi } from '../../services/thunk/feed';
 
 function App() {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const background = location.state?.background;
 
   useEffect(() => {
     dispatch(fetchIngredients());
-  }, []);
+    dispatch(fetchUser());
+  }, [dispatch]);
 
-  const ModalOrder = () => (
-    <Modal title='' onClose={() => window.history.back()}>
+  const handleModalClose = () => {
+    navigate(-1);
+  };
+
+  const ModalOrderWrapper = () => (
+    <Modal title='Детали заказа' onClose={handleModalClose}>
       <OrderInfo />
     </Modal>
   );
 
-  const ModalIngredient = () => (
-    <Modal title='' onClose={() => window.history.back()}>
+  const ModalIngredientWrapper = () => (
+    <Modal title='Детали ингредиента' onClose={handleModalClose}>
       <IngredientDetails />
     </Modal>
   );
 
-  const Layout = () => (
-    <div className={styles.app}>
-      <AppHeader />
-      <Outlet />
-    </div>
-  );
+  return (
+    <>
+      <div className={styles.app}>
+        <AppHeader />
+        <Routes location={background || location}>
+          <Route path='/' element={<ConstructorPage />} />
+          <Route path='/feed' element={<Feed />} />
+          <Route path='/feed/:number' element={<OrderInfo />} />
+          <Route path='/ingredients/:id' element={<IngredientDetails />} />
 
-  const router = createBrowserRouter(
-    createRoutesFromElements(
-      <Route element={<Layout />}>
-        <Route path='/' element={<ConstructorPage />} />
-        <Route path='/feed' element={<Feed />}>
-          <Route path=':number' element={<ModalOrder />} />
-        </Route>
-        <Route
-          path='/login'
-          element={
-            <ProtectedRoute>
-              <Login />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path='/register'
-          element={
-            <ProtectedRoute>
-              <Register />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path='/forgot-password'
-          element={
-            <ProtectedRoute>
-              <ForgotPassword />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path='/reset-password'
-          element={
-            <ProtectedRoute>
-              <ResetPassword />
-            </ProtectedRoute>
-          }
-        />
-        <Route path='/profile'>
           <Route
-            index
+            path='/login'
+            element={
+              <ProtectedRoute isPublic>
+                <Login />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/register'
+            element={
+              <ProtectedRoute isPublic>
+                <Register />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/forgot-password'
+            element={
+              <ProtectedRoute isPublic>
+                <ForgotPassword />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/reset-password'
+            element={
+              <ProtectedRoute isPublic>
+                <ResetPassword />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path='/profile'
             element={
               <ProtectedRoute>
                 <Profile />
               </ProtectedRoute>
             }
           />
-          <Route path='orders'>
-            <Route
-              index
-              element={
-                <ProtectedRoute>
-                  <ProfileOrders />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path=':number'
-              element={
-                <ProtectedRoute>
-                  <ModalOrder />
-                </ProtectedRoute>
-              }
-            />
-          </Route>
-        </Route>
-        <Route path='/ingredients'>
-          <Route path=':id' element={<ModalIngredient />} />
-        </Route>
-        <Route path='*' element={<NotFound404 />} />
-      </Route>
-    )
-  );
+          <Route
+            path='/profile/orders'
+            element={
+              <ProtectedRoute>
+                <ProfileOrders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/profile/orders/:number'
+            element={
+              <ProtectedRoute>
+                <OrderInfo />
+              </ProtectedRoute>
+            }
+          />
 
-  return <RouterProvider router={router} />;
+          <Route path='*' element={<NotFound404 />} />
+        </Routes>
+
+        {background && (
+          <Routes>
+            <Route
+              path='/ingredients/:id'
+              element={<ModalIngredientWrapper />}
+            />
+            <Route path='/feed/:number' element={<ModalOrderWrapper />} />
+            <Route
+              path='/profile/orders/:number'
+              element={<ModalOrderWrapper />}
+            />
+          </Routes>
+        )}
+      </div>
+    </>
+  );
 }
 
 export default App;

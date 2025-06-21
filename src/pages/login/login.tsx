@@ -1,9 +1,7 @@
-import { FC, SyntheticEvent, useState } from 'react';
+import { FC, FormEvent, useState } from 'react';
 import { LoginUI } from '@ui-pages';
-import { useDispatch, useSelector } from '../../services/store';
+import { useDispatch } from '../../services/store';
 import { loginUser } from '../../services/thunk/user';
-import userSlice from '../../services/slices/user';
-import { Preloader } from '@ui';
 
 export const Login: FC = () => {
   const [email, setEmail] = useState('');
@@ -11,7 +9,7 @@ export const Login: FC = () => {
   const dispatch = useDispatch();
   let errorMessage = '';
 
-  const handleSubmit = (e: SyntheticEvent) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     dispatch(loginUser({ email, password }));
   };

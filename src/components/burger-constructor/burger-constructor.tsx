@@ -7,7 +7,7 @@ import {
   ingredientsSelectors
 } from '../../services/slices/Ingredients';
 import { userSliceSelectors } from '../../services/slices/user';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { feedsActions, feedsSelectors } from '../../services/slices/feed';
 import { userOrderBurgerApi } from '../../services/thunk/feed';
 

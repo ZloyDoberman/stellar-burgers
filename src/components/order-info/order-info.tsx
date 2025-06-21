@@ -14,17 +14,11 @@ export const OrderInfo: FC = () => {
     ingredientsSelectors.selectIngredients
   );
   const { number } = useParams();
-  const orders = useSelector(feedsSelectors.selectFeedsOrders);
-  const userHistory = useSelector(feedsSelectors.selectOrderHistory);
   const dispatch = useDispatch();
 
-  const ordersInfoDataSelector = (number: number) => {
-    const foundInOrders = orders.find((item) => item.number === number);
-    if (foundInOrders) return foundInOrders;
-    return userHistory.find((item) => item.number === number) || null;
-  };
-
-  const orderData = ordersInfoDataSelector(Number(number));
+  const orderData = useSelector((state) =>
+    number ? feedsSelectors.selectInfoDataOrder(state)(number) : null
+  );
 
   useEffect(() => {
     if (!orderData) {

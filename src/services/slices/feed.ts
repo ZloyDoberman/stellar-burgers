@@ -94,7 +94,26 @@ const feedsSlice = createSlice({
     selectFeedsRequestStatus: (state) => state.requestStatus,
     selectUserOrder: (state) => state.userOrder,
     selectOrderRequest: (state) => state.orderRequest,
-    selectOrderHistory: (state) => state.userOrderHistory
+    selectOrderHistory: (state) => state.userOrderHistory,
+    selectInfoDataOrder: (state) => (number: string) => {
+      if (state.orders.length) {
+        const data = state.orders.find((item) => item.number === +number);
+        if (data) return data;
+      }
+
+      if (state.userOrderHistory.length) {
+        const data = state.userOrderHistory.find(
+          (item) => item.number === +number
+        );
+        if (data) return data;
+      }
+
+      if (state.order?.number === +number) {
+        return state.order;
+      }
+
+      return null;
+    }
   }
 });
 

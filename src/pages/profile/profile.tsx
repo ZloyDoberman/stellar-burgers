@@ -56,10 +56,6 @@ export const Profile: FC = () => {
     }));
   };
 
-  if (status === 'Loading') {
-    return <Preloader />;
-  }
-
   return (
     <ProfileUI
       formValue={formValue}

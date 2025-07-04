@@ -42,6 +42,13 @@ afterEach(() => {
 
 describe('Конструктор бургеров', () => {
   it('Добавляет ингредиент при клике на кнопку', () => {
+    cy.get(SELECTORS.BUN_TOP_ID).should('not.exist');
+    cy.get(SELECTORS.BUN_BOTTOM_ID).should('not.exist');
+    cy.get(SELECTORS.OTHER_INGREDIENTS_ID).should(
+      'not.contain',
+      SELECTORS.OTHER_INGREDIENTS_NAME
+    );
+
     cy.contains('li', SELECTORS.BUN_NAME).find('button').click();
     cy.contains('li', SELECTORS.OTHER_INGREDIENTS_NAME).find('button').click();
 
@@ -60,6 +67,8 @@ describe('Конструктор бургеров', () => {
 
   describe('Тестирование модальных окон ингредиентов', () => {
     it('Открывает модальное окно при клике на ингредиент', () => {
+      cy.get(SELECTORS.MODAL_ID).should('not.exist');
+
       cy.contains('li', SELECTORS.BUN_NAME).click();
       cy.get(SELECTORS.MODAL_ID)
         .should('be.visible')
@@ -68,12 +77,14 @@ describe('Конструктор бургеров', () => {
 
     it('Закрывает модальное окно при клике на крестик', () => {
       cy.contains('li', SELECTORS.BUN_NAME).click();
+      cy.get(SELECTORS.MODAL_ID).should('exist');
       cy.get(SELECTORS.CLOSE_BUTTON_MODAL_ID).should('exist').click();
       cy.get(SELECTORS.MODAL_ID).should('not.exist');
     });
 
     it('Закрывает модальное окно при клике на оверлей', () => {
       cy.contains('li', SELECTORS.BUN_NAME).click();
+      cy.get(SELECTORS.MODAL_ID).should('exist');
       cy.get(SELECTORS.OVERLAY_ID).should('exist').click({ force: true });
       cy.get(SELECTORS.MODAL_ID).should('not.exist');
     });
@@ -81,6 +92,12 @@ describe('Конструктор бургеров', () => {
 
   describe('Создание заказа', () => {
     it('Собирается бургер и делается заказ', () => {
+      cy.get(SELECTORS.BUN_TOP_ID).should('not.exist');
+      cy.get(SELECTORS.BUN_BOTTOM_ID).should('not.exist');
+      cy.get(SELECTORS.OTHER_INGREDIENTS_ID).should(
+        'not.contain',
+        SELECTORS.OTHER_INGREDIENTS_NAME
+      );
       cy.contains('li', SELECTORS.BUN_NAME).find('button').click();
       cy.contains('li', SELECTORS.OTHER_INGREDIENTS_NAME)
         .find('button')
@@ -91,8 +108,6 @@ describe('Конструктор бургеров', () => {
       cy.get(SELECTORS.MODAL_ID)
         .should('be.visible')
         .and('contain.text', SELECTORS.NUMBER_ORDER);
-
-      cy.get(SELECTORS.CLOSE_BUTTON_MODAL_ID).click();
 
       cy.get(SELECTORS.DEFAULT_BUN_TOP_ID)
         .should('exist')
@@ -105,6 +120,8 @@ describe('Конструктор бургеров', () => {
       cy.get(SELECTORS.DEFAULT_OTHER_INGREDIENTS_ID)
         .should('exist')
         .and('contain.text', 'Выберите начинку');
+
+      cy.get(SELECTORS.CLOSE_BUTTON_MODAL_ID).click();
     });
   });
 });

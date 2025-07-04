@@ -19,7 +19,7 @@ export interface feedsState {
   requestStatus: RequestStatus;
 }
 
-const initialState: feedsState = {
+export const initialState: feedsState = {
   orders: [],
   order: null,
   userOrder: null,

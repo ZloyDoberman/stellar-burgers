@@ -2,11 +2,16 @@ const SELECTORS = {
   BUN_TOP_ID: '[data-testid="constructor-bun-top"]',
   BUN_BOTTOM_ID: '[data-testid="constructor-bun-bottom"]',
   OTHER_INGREDIENTS_ID: '[data-testid="constructor-ingredients"]',
-  MODAL_INGREDIENTS_ID: '[data-testid="ingredient-modal"]',
+  MODAL_ID: '[data-testid="modal"]',
   OVERLAY_ID: '[data-testid="modal-overlay"]',
   BUN_NAME: 'Краторная булка N-200i',
   OTHER_INGREDIENTS_NAME: 'Биокотлета из марсианской Магнолии',
-  CLOSE_BUTTON_MODAL_ID: '[data-testid="close-modal"]'
+  CLOSE_BUTTON_MODAL_ID: '[data-testid="close-modal"]',
+  NUMBER_ORDER: '1234',
+  DEFAULT_BUN_TOP_ID: '[data-testid="default-constructor-bun-top"]',
+  DEFAULT_BUN_BOTTOM_ID: '[data-testid="default-constructor-bun-bottom"]',
+  DEFAULT_OTHER_INGREDIENTS_ID:
+    '[data-testid="default-constructor-ingredients"]'
 };
 
 beforeEach(() => {
@@ -18,12 +23,15 @@ beforeEach(() => {
     fixture: 'user.json'
   }).as('getUser');
 
+  cy.intercept('POST', 'api/orders', { fixture: 'order.json' }).as('postOrder');
+
   cy.window().then((win) => {
-    win.localStorage.setItem('accessToken', 'mock-token');
+    win.localStorage.setItem('refreshToken', 'mock-refresh-token');
   });
+
   cy.setCookie('accessToken', 'mock-access-token');
 
-  cy.visit('/');
+  cy.visit('http://localhost:4000/');
   cy.wait(['@getIngredients', '@getUser']);
 });
 
@@ -37,44 +45,66 @@ describe('Конструктор бургеров', () => {
     cy.contains('li', SELECTORS.BUN_NAME).find('button').click();
     cy.contains('li', SELECTORS.OTHER_INGREDIENTS_NAME).find('button').click();
 
-    cy.get(SELECTORS.BUN_TOP_ID).and(
-      'contain.text',
-      `${SELECTORS.BUN_NAME} (верх)`
-    );
+    cy.get(SELECTORS.BUN_TOP_ID)
+      .should('exist')
+      .and('contain.text', `${SELECTORS.BUN_NAME} (верх)`);
 
-    cy.get(SELECTORS.BUN_BOTTOM_ID).and(
-      'contain.text',
-      `${SELECTORS.BUN_NAME} (низ)`
-    );
+    cy.get(SELECTORS.BUN_BOTTOM_ID)
+      .should('exist')
+      .and('contain.text', `${SELECTORS.BUN_NAME} (низ)`);
 
-    cy.get(SELECTORS.OTHER_INGREDIENTS_ID).and(
-      'contain.text',
-      `${SELECTORS.OTHER_INGREDIENTS_NAME}`
-    );
+    cy.get(SELECTORS.OTHER_INGREDIENTS_ID)
+      .should('exist')
+      .and('contain.text', `${SELECTORS.OTHER_INGREDIENTS_NAME}`);
   });
 
   describe('Тестирование модальных окон ингредиентов', () => {
     it('Открывает модальное окно при клике на ингредиент', () => {
       cy.contains('li', SELECTORS.BUN_NAME).click();
-      cy.get(SELECTORS.MODAL_INGREDIENTS_ID)
+      cy.get(SELECTORS.MODAL_ID)
         .should('be.visible')
         .and('contain.text', SELECTORS.BUN_NAME);
     });
 
     it('Закрывает модальное окно при клике на крестик', () => {
       cy.contains('li', SELECTORS.BUN_NAME).click();
-      cy.get(SELECTORS.CLOSE_BUTTON_MODAL_ID).click();
-      cy.get(SELECTORS.CLOSE_BUTTON_MODAL_ID).should('not.exist');
+      cy.get(SELECTORS.CLOSE_BUTTON_MODAL_ID).should('exist').click();
+      cy.get(SELECTORS.MODAL_ID).should('not.exist');
     });
 
     it('Закрывает модальное окно при клике на оверлей', () => {
       cy.contains('li', SELECTORS.BUN_NAME).click();
-      cy.get(SELECTORS.OVERLAY_ID).click({ force: true });
-      cy.get(SELECTORS.CLOSE_BUTTON_MODAL_ID).should('not.exist');
+      cy.get(SELECTORS.OVERLAY_ID).should('exist').click({ force: true });
+      cy.get(SELECTORS.MODAL_ID).should('not.exist');
     });
   });
 
   describe('Создание заказа', () => {
-     
+    it('Собирается бургер и делается заказ', () => {
+      cy.contains('li', SELECTORS.BUN_NAME).find('button').click();
+      cy.contains('li', SELECTORS.OTHER_INGREDIENTS_NAME)
+        .find('button')
+        .click();
+
+      cy.contains('Оформить заказ').click();
+
+      cy.get(SELECTORS.MODAL_ID)
+        .should('be.visible')
+        .and('contain.text', SELECTORS.NUMBER_ORDER);
+
+      cy.get(SELECTORS.CLOSE_BUTTON_MODAL_ID).click();
+
+      cy.get(SELECTORS.DEFAULT_BUN_TOP_ID)
+        .should('exist')
+        .and('contain.text', 'Выберите булки');
+
+      cy.get(SELECTORS.DEFAULT_BUN_BOTTOM_ID)
+        .should('exist')
+        .and('contain.text', 'Выберите булки');
+
+      cy.get(SELECTORS.DEFAULT_OTHER_INGREDIENTS_ID)
+        .should('exist')
+        .and('contain.text', 'Выберите начинку');
+    });
   });
 });

@@ -15,7 +15,7 @@ export interface UserState {
   userCheck: boolean;
 }
 
-const initialState: UserState = {
+export const initialState: UserState = {
   data: null,
   requestStatus: RequestStatus.Idle,
   userCheck: false // была ли проверка по токену

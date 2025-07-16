@@ -37,6 +37,7 @@ export const BurgerConstructor: FC = () => {
     ];
     dispatch(userOrderBurgerApi(id)).then(() => {
       dispatch(ingredientsActions.clearIngredient());
+      (window as any).ym(103229577, 'reachGoal', 'buy');
     });
   };
 

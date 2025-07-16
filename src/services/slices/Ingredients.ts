@@ -13,7 +13,7 @@ export interface ingredientsState {
   requestStatus: RequestStatus;
 }
 
-const initialState: ingredientsState = {
+export const initialState: ingredientsState = {
   data: [],
   addIngredient: [],
   requestStatus: RequestStatus.Idle

@@ -35,11 +35,13 @@ export const BurgerConstructor: FC = () => {
       constructorItems.bun._id,
       ...constructorItems.ingredients.map((item) => item._id)
     ];
-    dispatch(userOrderBurgerApi(id));
+    dispatch(userOrderBurgerApi(id)).then(() => {
+      dispatch(ingredientsActions.clearIngredient());
+      (window as any).ym(103229577, 'reachGoal', 'buy');
+    });
   };
 
   const closeOrderModal = () => {
-    dispatch(ingredientsActions.clearIngredient());
     dispatch(feedsActions.clearUserOrder());
     navigate('/');
   };

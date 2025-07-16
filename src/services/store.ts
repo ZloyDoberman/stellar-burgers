@@ -8,12 +8,14 @@ import ingredientsSlice from './slices/Ingredients';
 import userSlice from './slices/user';
 import feedsSlice from './slices/feed';
 
+export const rootReducer = combineSlices({
+  [ingredientsSlice.name]: ingredientsSlice.reducer,
+  [userSlice.name]: userSlice.reducer,
+  [feedsSlice.name]: feedsSlice.reducer
+});
+
 export const store = configureStore({
-  reducer: {
-    [ingredientsSlice.name]: ingredientsSlice.reducer,
-    [userSlice.name]: userSlice.reducer,
-    [feedsSlice.name]: feedsSlice.reducer
-  },
+  reducer: rootReducer,
   devTools: process.env.NODE_ENV !== 'production'
 });
 
